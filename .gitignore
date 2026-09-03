@@ -1,9 +1,0 @@
-# .gitignore
-
-# Ignore dotenv files
-.env
-/src/ani.js
-node_modules/
-data/
-
-*.swp
