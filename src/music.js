@@ -1,6 +1,4 @@
 const express = require('express')
-const path = require('path')
-const fs = require('fs')
 const mysql = require('mysql2/promise')
 const router = express.Router()
 require('dotenv').config()
@@ -26,17 +24,6 @@ router.use('/img/song', (req, res) => {
 })
 router.use('/music', (req, res) => {
     res.redirect(`https://storage.kimrasng.kr/music_server/songs${req.path}`)
-})
-
-router.get('/', async (req, res) => {
-    const mainPagePath = path.join(__dirname, '../page/music_server.html')
-    fs.readFile(mainPagePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err)
-            return res.status(500).send('Error reading main page')
-        }
-        res.send(data)
-    })
 })
 
 const getRequestValue = (req, name) => {

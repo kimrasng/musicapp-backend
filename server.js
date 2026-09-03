@@ -1,7 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const path = require('path')
-const fs = require('fs')
+const swaggerUi = require('swagger-ui-express')
 require('dotenv').config()
 
 const app = express()
@@ -11,22 +10,12 @@ app.use(express.json())
 
 const musicRouter = require('./src/music')
 const test = require('./src/test')
+const swaggerDocument = require('./swagger')
 
 app.use(cors())
 
-app.use('/service/', express.static(path.join('https://music.kimrasng.kr')))
-app.use('/document/', express.static(path.join(__dirname, '/page/document')))
-
-app.get('/', (req, res) => {
-    const mainPagePath = path.join(__dirname, './page/main.html')
-    fs.readFile(mainPagePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading main page:', err)
-            return res.status(500).send('Internal Server Error')
-        }
-        res.send(data)
-    })
-})
+app.use('/apidocs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.get('/', (req, res) => res.redirect('/apidocs'))
 
 app.use('/api/music-server', musicRouter)
 // app.use('/api/ani-server', aniRouter)
