@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: mysql:latest
+    image: mysql:8.0.44
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: api_db
