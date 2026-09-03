@@ -49,20 +49,6 @@ const options = {
                         { $ref: '#/components/parameters/Sort' },
                         { $ref: '#/components/parameters/Order' }
                     ],
-                    requestBody: {
-                        required: false,
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        sort: { type: 'string', example: 'title' },
-                                        order: { type: 'string', enum: ['asc', 'desc'], example: 'asc' }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     responses: { 200: { description: 'Song list' }, 400: { description: 'Invalid sort or order' } }
                 }
             },
@@ -82,20 +68,6 @@ const options = {
                         { $ref: '#/components/parameters/Sort' },
                         { $ref: '#/components/parameters/Order' }
                     ],
-                    requestBody: {
-                        required: false,
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        sort: { type: 'string', example: 'name' },
-                                        order: { type: 'string', enum: ['asc', 'desc'], example: 'asc' }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     responses: { 200: { description: 'Artist list' }, 400: { description: 'Invalid sort or order' } }
                 }
             },
@@ -115,20 +87,6 @@ const options = {
                         { $ref: '#/components/parameters/Sort' },
                         { $ref: '#/components/parameters/Order' }
                     ],
-                    requestBody: {
-                        required: false,
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        sort: { type: 'string', example: 'title' },
-                                        order: { type: 'string', enum: ['asc', 'desc'], example: 'asc' }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     responses: { 200: { description: 'Album list' }, 400: { description: 'Invalid sort or order' } }
                 }
             },
