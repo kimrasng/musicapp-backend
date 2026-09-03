@@ -39,10 +39,30 @@ router.get('/', async (req, res) => {
     })
 })
 
+const getRequestValue = (req, name) => {
+    const bodyValue = req.body && req.body[name]
+    return bodyValue || req.get(name) || req.get(`x-${name}`)
+}
+
+const getSortOrder = (req) => ({
+    sort: getRequestValue(req, 'sort'),
+    order: getRequestValue(req, 'order') || 'asc'
+})
+
 // music-api/songs
 router.get('/songs', async (req, res) => {
     try {
-        const [rows] = await pool.query(`SELECT * FROM songs`)
+        const { sort, order } = getSortOrder(req)
+        const sortColumns = { title: 'title', artist: 'artist_name', date: 'release_date' }
+        const orderBy = sortColumns[sort]
+
+        if (sort && !orderBy) return res.status(400).send('Invalid sort parameter')
+        if (!['asc', 'desc'].includes(order)) return res.status(400).send('Invalid order parameter')
+
+        const query = orderBy
+            ? `SELECT * FROM songs ORDER BY ${orderBy} ${order.toUpperCase()}`
+            : 'SELECT * FROM songs'
+        const [rows] = await pool.query(query)
         res.json({ songs: rows })
     } catch (error) {
         console.error(error)
@@ -50,49 +70,31 @@ router.get('/songs', async (req, res) => {
     }
 })
 
-router.get('/songs/:sort/:order', async (req, res) => {
+router.get('/songs/:id', async (req, res) => {
     try {
-        const { sort, order } = req.params
-        let query
-        let orderBy
-        
-        switch (sort) {
-            case 'title':
-                orderBy = 'title'
-                break
-            case 'artist':
-                orderBy = 'artist_name'
-                break
-            case 'date':
-                orderBy = 'release_date'
-                break
-            default:
-                return res.status(404).send('Not Found')
-        }
-        
-        switch (order) {
-            case 'asc':
-                query = `SELECT * FROM songs ORDER BY ${orderBy} ASC`
-                break
-            case 'desc':
-                query = `SELECT * FROM songs ORDER BY ${orderBy} DESC`
-                break
-            default:
-                return res.status(400).send('Invalid order parameter')
-        }
-        
-        const [rows] = await pool.query(query)
-        res.json({ songs: rows })
+        const [rows] = await pool.query('SELECT * FROM songs WHERE id = ?', [req.params.id])
+        if (!rows.length) return res.status(404).send('Song not found')
+        res.json({ song: rows[0] })
     } catch (error) {
         console.error(error)
-        res.status(500).send('Error fetching sorted songs')
+        res.status(500).send('Error fetching song')
     }
 })
 
 // music-api/artists
 router.get('/artists', async (req, res) => {
     try {
-        const [rows] = await pool.query(`SELECT * FROM artists`)
+        const { sort, order } = getSortOrder(req)
+        const sortColumns = { name: 'korean_name', date: 'debut_date', foreign: 'foreign_name' }
+        const orderBy = sortColumns[sort]
+
+        if (sort && !orderBy) return res.status(400).send('Invalid sort parameter')
+        if (!['asc', 'desc'].includes(order)) return res.status(400).send('Invalid order parameter')
+
+        const query = orderBy
+            ? `SELECT * FROM artists ORDER BY ${orderBy} ${order.toUpperCase()}`
+            : 'SELECT * FROM artists'
+        const [rows] = await pool.query(query)
         res.json({ artists: rows })
     } catch (error) {
         console.error(error)
@@ -100,34 +102,30 @@ router.get('/artists', async (req, res) => {
     }
 })
 
-router.get('/artists/:sort', async (req, res) => {
+router.get('/artists/:id', async (req, res) => {
     try {
-        const { sort } = req.params
-        let query
-        switch (sort) {
-            case 'name':
-                query = 'SELECT * FROM artists ORDER BY korean_name ASC'
-                break
-            case 'date':
-                query = 'SELECT * FROM artists ORDER BY debut_date ASC'
-                break
-            case 'foreign':
-                query = 'SELECT * FROM artists ORDER BY foreign_name ASC'
-                break
-            default:
-                return res.status(404).send('Not Found')
-        }
-        const [rows] = await pool.query(query)
-        res.json({ artists: rows })
+        const [rows] = await pool.query('SELECT * FROM artists WHERE id = ?', [req.params.id])
+        if (!rows.length) return res.status(404).send('Artist not found')
+        res.json({ artist: rows[0] })
     } catch (error) {
         console.error(error)
-        res.status(500).send('Error fetching sorted artists')
+        res.status(500).send('Error fetching artist')
     }
 })
 
 router.get('/albums', async (req, res) => {
     try {
-        const [rows] = await pool.query(`SELECT * FROM albums`)
+        const { sort, order } = getSortOrder(req)
+        const sortColumns = { title: 'title', artist: 'artist_id', date: 'release_date' }
+        const orderBy = sortColumns[sort]
+
+        if (sort && !orderBy) return res.status(400).send('Invalid sort parameter')
+        if (!['asc', 'desc'].includes(order)) return res.status(400).send('Invalid order parameter')
+
+        const query = orderBy
+            ? `SELECT * FROM albums ORDER BY ${orderBy} ${order.toUpperCase()}`
+            : 'SELECT * FROM albums'
+        const [rows] = await pool.query(query)
         res.json({ albums: rows })
     } catch (error) {
         console.error(error)
@@ -135,42 +133,14 @@ router.get('/albums', async (req, res) => {
     }
 })
 
-router.get('/albums/:sort/:order', async (req, res) => {
+router.get('/albums/:id', async (req, res) => {
     try {
-        const { sort, order } = req.params
-        let query
-        let orderBy
-        
-        switch (sort) {
-            case 'title':
-                orderBy = 'title'
-                break
-            case 'artist':
-                orderBy = 'artist_id'
-                break
-            case 'date':
-                orderBy = 'release_date'
-                break
-            default:
-                return res.status(404).send('Not Found')
-        }
-        
-        switch (order) {
-            case 'asc':
-                query = `SELECT * FROM albums ORDER BY ${orderBy} ASC`
-                break
-            case 'desc':
-                query = `SELECT * FROM albums ORDER BY ${orderBy} DESC`
-                break
-            default:
-                return res.status(400).send('Invalid order parameter')
-        }
-        
-        const [rows] = await pool.query(query)
-        res.json({ albums: rows })
+        const [rows] = await pool.query('SELECT * FROM albums WHERE id = ?', [req.params.id])
+        if (!rows.length) return res.status(404).send('Album not found')
+        res.json({ album: rows[0] })
     } catch (error) {
         console.error(error)
-        res.status(500).send('Error fetching sorted albums')
+        res.status(500).send('Error fetching album')
     }
 })
 

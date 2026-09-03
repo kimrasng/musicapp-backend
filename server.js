@@ -7,6 +7,8 @@ require('dotenv').config()
 const app = express()
 const PORT = 3000
 
+app.use(express.json())
+
 const musicRouter = require('./src/music')
 const test = require('./src/test')
 
