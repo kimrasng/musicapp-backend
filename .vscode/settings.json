@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^docker volume ls --format '\\{\\{\\.Name\\}\\}' \\| rg 'db_data\\|api_server' \\|\\| true$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
