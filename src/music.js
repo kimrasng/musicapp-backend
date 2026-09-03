@@ -36,6 +36,19 @@ const getSortOrder = (req) => ({
     order: getRequestValue(req, 'order') || 'asc'
 })
 
+const getIdColumn = async (table, candidates) => {
+    const [columns] = await pool.query(`SHOW COLUMNS FROM \`${table}\``)
+    const availableColumns = new Set(columns.map((column) => column.Field))
+    return candidates.find((candidate) => availableColumns.has(candidate))
+}
+
+const findById = async (table, candidates, id) => {
+    const idColumn = await getIdColumn(table, candidates)
+    if (!idColumn) throw new Error(`No supported ID column found for ${table}`)
+    const [rows] = await pool.query(`SELECT * FROM \`${table}\` WHERE \`${idColumn}\` = ?`, [id])
+    return rows
+}
+
 // music-api/songs
 router.get('/songs', async (req, res) => {
     try {
@@ -59,7 +72,7 @@ router.get('/songs', async (req, res) => {
 
 router.get('/songs/:id', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM songs WHERE id = ?', [req.params.id])
+        const rows = await findById('songs', ['id', 'song_id'], req.params.id)
         if (!rows.length) return res.status(404).send('Song not found')
         res.json({ song: rows[0] })
     } catch (error) {
@@ -91,7 +104,7 @@ router.get('/artists', async (req, res) => {
 
 router.get('/artists/:id', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM artists WHERE id = ?', [req.params.id])
+        const rows = await findById('artists', ['id', 'artist_id'], req.params.id)
         if (!rows.length) return res.status(404).send('Artist not found')
         res.json({ artist: rows[0] })
     } catch (error) {
@@ -122,7 +135,7 @@ router.get('/albums', async (req, res) => {
 
 router.get('/albums/:id', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM albums WHERE id = ?', [req.params.id])
+        const rows = await findById('albums', ['id', 'album_id'], req.params.id)
         if (!rows.length) return res.status(404).send('Album not found')
         res.json({ album: rows[0] })
     } catch (error) {
