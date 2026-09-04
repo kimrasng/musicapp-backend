@@ -1,0 +1,59 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Music API",
+    "description": "음악 앱 조회 API",
+    "version": "1.0.0"
+  },
+  "servers": [{"url": "/"}],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "데이터베이스 상태 확인",
+        "responses": {
+          "200": {"description": "정상", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HealthResponse"}}}},
+          "503": {"description": "데이터베이스 연결 실패", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/artists": {
+      "get": {
+        "summary": "아티스트 목록 조회",
+        "responses": {
+          "200": {"description": "아티스트 목록", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ArtistList"}}}},
+          "500": {"description": "아티스트 조회 실패", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/albums": {
+      "get": {
+        "summary": "앨범 목록 조회",
+        "responses": {
+          "200": {"description": "앨범 목록", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AlbumList"}}}},
+          "500": {"description": "앨범 조회 실패", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/songs": {
+      "get": {
+        "summary": "음악 목록 조회",
+        "responses": {
+          "200": {"description": "음악 목록", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SongList"}}}},
+          "500": {"description": "음악 조회 실패", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {"type": "object", "properties": {"status": {"type": "string", "example": "ok"}}},
+      "ErrorResponse": {"type": "object", "properties": {"error": {"type": "string", "example": "database unavailable"}}},
+      "Artist": {"type": "object", "properties": {"id": {"type": "integer", "format": "int32", "example": 1}, "name": {"type": "string", "example": "Radiohead"}, "korean_name": {"type": "string", "example": "라디오헤드"}, "foreign_name": {"type": "string", "example": "Radiohead"}, "debut_date": {"type": "string", "nullable": true, "example": "1992-01-01"}, "image_url": {"type": "string", "nullable": true, "example": "https://example.com/artist.jpg"}}},
+      "Album": {"type": "object", "properties": {"id": {"type": "integer", "format": "int32", "example": 1}, "title": {"type": "string", "example": "OK Computer"}, "artist_id": {"type": "integer", "format": "int32", "example": 1}, "artist_name": {"type": "string", "example": "Radiohead"}, "korean_title": {"type": "string", "nullable": true, "example": "오케이 컴퓨터"}, "image_url": {"type": "string", "nullable": true, "example": "https://example.com/album.jpg"}, "release_date": {"type": "string", "nullable": true, "example": "1997-05-21"}}},
+      "Song": {"type": "object", "properties": {"id": {"type": "integer", "format": "int32", "example": 1}, "title": {"type": "string", "example": "Airbag"}, "korean_title": {"type": "string", "nullable": true, "example": "에어백"}, "english_title": {"type": "string", "nullable": true, "example": "Airbag"}, "artist_id": {"type": "integer", "format": "int32", "example": 1}, "artist_name": {"type": "string", "example": "Radiohead"}, "song_url": {"type": "string", "nullable": true, "example": "https://example.com/song.mp3"}, "image_url": {"type": "string", "nullable": true, "example": "https://example.com/song.jpg"}, "release_date": {"type": "string", "nullable": true, "example": "1997-05-21"}, "disc_number": {"type": "integer", "format": "int32", "nullable": true, "example": 1}, "album_id": {"type": "integer", "format": "int32", "nullable": true, "example": 1}, "album_title": {"type": "string", "nullable": true, "example": "OK Computer"}}},
+      "ArtistList": {"type": "array", "items": {"$ref": "#/components/schemas/Artist"}},
+      "AlbumList": {"type": "array", "items": {"$ref": "#/components/schemas/Album"}},
+      "SongList": {"type": "array", "items": {"$ref": "#/components/schemas/Song"}}
+    }
+  }
+}
