@@ -3,10 +3,10 @@ services:
     image: mysql:8.4
 
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-musicapp}
+      MYSQL_USER: ${MYSQL_USER:-musicapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-musicapp}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
 
     ports:
       - "3306:3306"
@@ -24,8 +24,8 @@ services:
           "-h",
           "localhost",
           "-u",
-          "${MYSQL_USER}",
-          "-p${MYSQL_PASSWORD}"
+          "${MYSQL_USER:-musicapp}",
+          "-p${MYSQL_PASSWORD:-musicapp}"
         ]
       interval: 5s
       timeout: 5s
@@ -35,8 +35,8 @@ services:
   api:
     build: .
     environment:
-      MYSQL_DSN: ${MYSQL_DSN}
-      PORT: ${PORT}
+      MYSQL_DSN: ${MYSQL_USER:-musicapp}:${MYSQL_PASSWORD:-musicapp}@tcp(mysql:3306)/${MYSQL_DATABASE:-musicapp}?parseTime=true
+      PORT: ${PORT:-8080}
 
     ports:
       - "8080:8080"

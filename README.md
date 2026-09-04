@@ -10,6 +10,14 @@ Go, MySQL, Docker Compose로 만든 간단한 음악 조회 API입니다.
 cp .env.example .env
 ```
 
+`MYSQL_DSN`은 `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`에서 Docker Compose가 자동으로 구성합니다. 기존 `.env`에 `MYSQL_DSN`이 있다면 삭제하세요.
+
+기존 MySQL volume을 사용하는 경우에는 최초 초기화 당시의 계정 비밀번호가 유지됩니다. 비밀번호를 변경했다면 root 계정으로 다음 명령을 실행하세요.
+
+```bash
+docker compose exec mysql mysql -uroot -p -e "ALTER USER 'musicapp'@'%' IDENTIFIED BY '새 비밀번호'; FLUSH PRIVILEGES;"
+```
+
 그 다음 실행합니다.
 
 ```bash
