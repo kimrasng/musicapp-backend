@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,13 +26,24 @@ func waitForDatabase(db *sql.DB) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	var lastErr error
 	for {
 		if err := db.PingContext(ctx); err == nil {
 			return nil
+		} else {
+			lastErr = err
 		}
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return errors.New("database did not become ready within 60 seconds")
+
+		if err := ctx.Err(); err != nil {
+			return fmt.Errorf("database did not become ready within 60 seconds: %w (last ping error: %v)", err, lastErr)
 		}
-		time.Sleep(time.Second)
+
+		timer := time.NewTimer(time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return fmt.Errorf("database did not become ready within 60 seconds: %w (last ping error: %v)", ctx.Err(), lastErr)
+		case <-timer.C:
+		}
 	}
 }
