@@ -8,7 +8,22 @@ import (
 )
 
 func (h *Handler) Artists(w http.ResponseWriter, r *http.Request) {
-	rows, err := h.db.QueryContext(r.Context(), "SELECT id, korean_name, foreign_name, debut_date, image_url FROM artists ORDER BY korean_name")
+	options, err := parseListQuery(r, "name", "asc", map[string]string{
+		"id": "artists.id", "name": "artists.korean_name",
+	})
+	if err != nil {
+		queryError(w, err)
+		return
+	}
+
+	query := "SELECT id, korean_name, foreign_name, debut_date, image_url FROM artists"
+	args := []any{}
+	if options.ID != nil {
+		query += " WHERE id = ?"
+		args = append(args, *options.ID)
+	}
+	query += " ORDER BY " + options.SortValue + " " + options.Order
+	rows, err := h.db.QueryContext(r.Context(), query, args...)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "could not load artists")
 		return
